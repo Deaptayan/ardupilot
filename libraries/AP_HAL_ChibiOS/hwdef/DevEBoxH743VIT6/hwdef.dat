@@ -1,0 +1,136 @@
+# hw definition file for processing by chibios_pins.py
+# for DevEBoxH743VIT6 (STM32H743VIT6)
+# Custom drone build: MPU6500 on SPI1, HMC5883L+BMP280+VL53L0X on I2C1,
+# GPS on USART3, 4x motor PWM on TIM1
+
+# -----------------------------------------------------------------------
+# MCU
+# -----------------------------------------------------------------------
+MCU STM32H7xx STM32H743xx
+
+APJ_BOARD_ID AP_HW_DEVEBOXH7
+
+OSCILLATOR_HZ 25000000
+
+STM32_ST_USE_TIMER 2
+
+RAM_RESERVE_START 256
+
+FLASH_SIZE_KB 2048
+FLASH_RESERVE_START_KB 128
+
+# -----------------------------------------------------------------------
+# Serial / I2C ordering
+# SERIAL0 = USB (OTG1)
+# SERIAL1 = EMPTY
+# SERIAL2 = EMPTY
+# SERIAL3 = USART3 (GPS on PD8/PD9)
+# Both DevEBoxH7v2 and MatekH743 reference boards place USART3
+# at SERIAL3 — matching this avoids GPS detection issues
+# -----------------------------------------------------------------------
+I2C_ORDER I2C1
+
+SERIAL_ORDER OTG1 EMPTY EMPTY USART3
+
+# -----------------------------------------------------------------------
+# USB  (PA11/PA12 reserved)
+# -----------------------------------------------------------------------
+PA11 OTG_FS_DM OTG1
+PA12 OTG_FS_DP OTG1
+
+# -----------------------------------------------------------------------
+# SWD  (PA13/PA14 reserved)
+# -----------------------------------------------------------------------
+PA13 JTMS-SWDIO SWD
+PA14 JTCK-SWCLK SWD
+
+# -----------------------------------------------------------------------
+# GPS: USART3 = SERIAL3
+# Pin order matches DevEBoxH7v2 and MatekH743 reference hwdefs exactly
+# -----------------------------------------------------------------------
+PD9 USART3_RX USART3
+PD8 USART3_TX USART3
+
+define DEFAULT_SERIAL3_PROTOCOL SerialProtocol_GPS
+define DEFAULT_SERIAL3_BAUD 38400
+
+# -----------------------------------------------------------------------
+# I2C1: HMC5883L (0x1E) + BMP280 (0x76) + VL53L0X (0x29)
+# -----------------------------------------------------------------------
+PB8 I2C1_SCL I2C1 PULLUP
+PB9 I2C1_SDA I2C1 PULLUP
+
+# -----------------------------------------------------------------------
+# SPI1: MPU6500
+# -----------------------------------------------------------------------
+PA5 SPI1_SCK  SPI1
+PA6 SPI1_MISO SPI1
+PA7 SPI1_MOSI SPI1
+
+PC4 MPU6500_CS CS
+PE4 MPU6500_DRDY INPUT
+
+# -----------------------------------------------------------------------
+# Auxiliary sensor GPIO pins
+# -----------------------------------------------------------------------
+PE5 HMC5883_DRDY INPUT
+PE6 VL53L0X_XSHUT OUTPUT HIGH
+PE2 VL53L0X_GPIO1 INPUT
+
+# -----------------------------------------------------------------------
+# ADC — Battery voltage and current sensing
+# PC0 = ADC1 channel 10 -> VBAT
+# PC1 = ADC1 channel 11 -> IBAT
+# -----------------------------------------------------------------------
+PC0 BATT_VOLTAGE_SENS ADC1 SCALE(1)
+PC1 BATT_CURRENT_SENS ADC1 SCALE(1)
+
+define HAL_BATT_MONITOR_DEFAULT 4
+define HAL_BATT_VOLT_PIN 10
+define HAL_BATT_CURR_PIN 11
+define HAL_BATT_VOLT_SCALE 11.0
+define HAL_BATT_CURR_SCALE 40.0
+
+# -----------------------------------------------------------------------
+# Motor PWM outputs — TIM1
+# -----------------------------------------------------------------------
+PE9  TIM1_CH1 TIM1 PWM(1) GPIO(50)
+PE11 TIM1_CH2 TIM1 PWM(2) GPIO(51)
+PE13 TIM1_CH3 TIM1 PWM(3) GPIO(52)
+PE14 TIM1_CH4 TIM1 PWM(4) GPIO(53)
+
+# -----------------------------------------------------------------------
+# On-board LED  (sink-drive: LOW = on)
+# -----------------------------------------------------------------------
+PA1 LED0 OUTPUT LOW GPIO(90)
+define HAL_LED_ON 0
+
+# -----------------------------------------------------------------------
+# SPI device table
+# -----------------------------------------------------------------------
+SPIDEV mpu6500 SPI1 DEVID1 MPU6500_CS MODE3 1*MHZ 8*MHZ
+
+# -----------------------------------------------------------------------
+# Sensor drivers
+# -----------------------------------------------------------------------
+IMU Invensense SPI:mpu6500 ROTATION_NONE
+
+BARO BMP280 I2C:0:0x76
+
+COMPASS HMC5843 I2C:0:0x1E false ROTATION_NONE
+
+# -----------------------------------------------------------------------
+# Storage
+# -----------------------------------------------------------------------
+STORAGE_FLASH_PAGE 14
+define HAL_STORAGE_SIZE 32768
+
+# -----------------------------------------------------------------------
+# Defines
+# -----------------------------------------------------------------------
+define ALLOW_ARM_NO_COMPASS
+define HAL_BARO_ALLOW_INIT_NO_BARO
+define HAL_LOGGING_FILESYSTEM_ENABLED 0
+define HAL_OSD_ENABLED 0
+define AP_COMPASS_PROBING_ENABLED 1
+define HAL_I2C_INTERNAL_MASK 0
