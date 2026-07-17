@@ -126,15 +126,14 @@ PC12 SDMMC1_CK  SDMMC1
 PD2  SDMMC1_CMD SDMMC1
 
 # -----------------------------------------------------------------------
-# SPI1: MPU6500 — commented out, using MPU6050 on I2C for now
-# I have to restore it after buying MPU6500
-# Just Un-Comment If using SPI for MPU6500 or MPU9250
+# SPI1: MPU6500
+# Just Comment If using I2C for Gyro
 # -----------------------------------------------------------------------
-# PA5 SPI1_SCK  SPI1
-# PA6 SPI1_MISO SPI1
-# PA7 SPI1_MOSI SPI1
-# PC4 MPU6500_CS CS
-# PE4 MPU6500_DRDY INPUT
+PA5 SPI1_SCK  SPI1
+PA6 SPI1_MISO SPI1
+PA7 SPI1_MOSI SPI1
+PC4 MPU6500_CS CS
+PE4 MPU6500_DRDY INPUT
 
 # -----------------------------------------------------------------------
 # Auxiliary sensor GPIO pins
@@ -187,16 +186,16 @@ PB1 BUTTON4 INPUT PULLUP GPIO(94)
 # SPI device table
 # Un-comment the line "SPIDEV mpu6500 SPI1 DEVID1 MPU6500_CS MODE3 1*MHZ 8*MHZ" if using SPI
 # -----------------------------------------------------------------------
-#SPIDEV mpu6500 SPI1 DEVID1 MPU6500_CS MODE3 1*MHZ 8*MHZ
+SPIDEV mpu6500 SPI1 DEVID1 MPU6500_CS MODE3 1*MHZ 8*MHZ
 
 # -----------------------------------------------------------------------
 # Sensor drivers
 # Un-comment the line "IMU Invensense SPI:mpu6500 ROTATION_NONE" if using SPI
 # -----------------------------------------------------------------------
-#IMU Invensense SPI:mpu6500 ROTATION_NONE
+IMU Invensense SPI:mpu6500 ROTATION_NONE
 
 # Comment out the line "IMU Invensense I2C:0:0x68 ROTATION_NONE" below if using SPI for Gyro.
-IMU Invensense I2C:0:0x68 ROTATION_NONE
+#IMU Invensense I2C:0:0x68 ROTATION_NONE
 
 BARO BMP280 I2C:0:0x76
 
